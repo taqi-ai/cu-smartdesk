@@ -1,7 +1,7 @@
 const API_KEY = 'AIzaSyB3lguT62uK2C48bolAnt06Gg1qE2tTUis'; // Replace with real key
 
 async function callGemini(sys, msg) {
-    if(API_KEY === 'AIzaSyB3lguT62uK2C48bolAnt06Gg1qE2tTUis') return "System: Please provide a valid Gemini API Key.";
+    if(API_KEY === 'YOUR_API_KEY_HERE') return "System: Please provide a valid Gemini API Key.";
     
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
