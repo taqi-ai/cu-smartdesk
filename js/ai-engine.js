@@ -1,49 +1,57 @@
-const API_KEY = 'AIzaSyDXLjpTOGymRAg-JWWtdP2V2AWsY7P70sI'; // Placeholder for GitHub Action
+const API_KEY = 'AIzaSyDXLjpTOGymRAg-JWWtdP2V2AWsY7P70sI'; 
 
 async function callGemini(sys, msg) {
+    // 1. Safety check for the injection
     if (API_KEY.includes('REPLACE_ME')) {
-        return "System: API Key is missing. Ensure GitHub Secrets are configured.";
+        return "System: API Key not injected. Check GitHub Actions.";
     }
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        // 2. We use the most direct URL format
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
                     parts: [{ 
-                        text: `SYSTEM INSTRUCTIONS: ${sys}\n\nSTUDENT MESSAGE: ${msg}` 
+                        // 3. We merge instructions and message to avoid "System Instruction" errors
+                        text: `CONTEXT: ${sys}\n\nUSER INPUT: ${msg}` 
                     }]
                 }]
             })
         });
 
         const data = await response.json();
-        
+
+        // 4. If the model still 'isn't found', we log the full error to see why
         if (!response.ok) {
-            console.error("Gemini Error:", data);
-            return `AI Error: ${data.error.message}`;
+            console.error("DEBUG - API ERROR:", data);
+            return `AI Error: ${data.error ? data.error.message : 'Unknown Error'}`;
         }
 
         return data.candidates[0].content.parts[0].text;
+
     } catch (e) {
-        console.error("Connection Error:", e);
-        return "System: Connection to Gemini failed. Check your internet/API status.";
+        console.error("DEBUG - FETCH FAILED:", e);
+        return "System: Network Error. Check your connection.";
     }
 }
 
+// Keep your submitAnonymous function below as it was
 async function submitAnonymous() {
     const input = document.getElementById('anon-input').value;
     const feedback = document.getElementById('mod-feedback');
     if(!input) return;
 
-    feedback.innerHTML = "AI Moderating content...";
-    const sys = "Act as a university moderator. If the message is constructive campus feedback, reply ONLY with 'CLEAN'. If it's abusive, reply 'REJECTED: [Reason]'.";
+    feedback.innerHTML = "Processing...";
+    const sys = "Verify if this is constructive feedback. Reply 'CLEAN' or 'REJECTED'.";
     const result = await callGemini(sys, input);
 
     if(result.includes('CLEAN')) {
         feedback.style.color = "green";
-        feedback.innerText = "✅ Feedback sent anonymously to PVC Office.";
+        feedback.innerText = "✅ Feedback submitted.";
         document.getElementById('anon-input').value = "";
     } else {
         feedback.style.color = "red";
