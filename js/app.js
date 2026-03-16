@@ -6,6 +6,45 @@ function switchTab(tabId) {
     event.currentTarget.classList.add('active');
 }
 
+function printGrievance() {
+    const content = document.getElementById('grv-result').innerText;
+    if (!content) {
+        alert("Please generate a letter first!");
+        return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Official Grievance - CU SmartDesk</title>
+                <style>
+                    body { font-family: 'Times New Roman', serif; padding: 50px; line-height: 1.6; }
+                    .header { text-align: center; border-bottom: 2px solid #CC0000; padding-bottom: 10px; }
+                    .date { text-align: right; margin-bottom: 20px; }
+                    .content { white-space: pre-wrap; margin-top: 30px; }
+                    .footer { margin-top: 50px; border-top: 1px solid #eee; padding-top: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1 style="color:#CC0000; margin:0;">CHANDIGARH UNIVERSITY</h1>
+                    <p>UP Campus Student Grievance Cell</p>
+                </div>
+                <div class="date">Date: ${new Date().toLocaleDateString()}</div>
+                <p><strong>To:</strong> The Office of the Registrar / PVC</p>
+                <div class="content">${content}</div>
+                <div class="footer">
+                    <p><strong>Submitted by:</strong> Shadab Haider (21BCS10XXX)</p>
+                    <p style="font-size:10px; color:#888;">Generated via CU SmartDesk AI Resolution Ecosystem</p>
+                </div>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
 // Simulated Sync Logic
 function simulateSync() {
     const btn = document.getElementById('sync-btn');
