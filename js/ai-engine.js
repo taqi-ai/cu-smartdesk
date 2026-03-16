@@ -2,20 +2,21 @@ const API_KEY = 'AIzaSyDXLjpTOGymRAg-JWWtdP2V2AWsY7P70sI';
 
 async function callGemini(sys, msg) {
     if (API_KEY.includes('REPLACE_ME')) {
-        return "System: API Key not detected. Check GitHub Actions Secrets.";
+        return "System: API Key not injected. Check GitHub Secrets.";
     }
 
-    // We are switching to the STABLE v1 endpoint which is more reliable for Flash
-    const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    // Using the STABLE V1 Endpoint - this is the production version
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
                     parts: [{ 
-                        text: `INSTRUCTION: ${sys}\n\nSTUDENT: ${msg}` 
+                        // Merging system and user message is the safest way for free-tier keys
+                        text: `[SYSTEM]: ${sys}\n\n[USER]: ${msg}` 
                     }]
                 }]
             })
@@ -24,36 +25,17 @@ async function callGemini(sys, msg) {
         const data = await response.json();
 
         if (!response.ok) {
-            // This will help us see the EXACT error in the console if it fails
-            console.error("API Response Error:", data);
-            return `AI Error: ${data.error ? data.error.message : 'Service Unavailable'}`;
+            // This will show exactly what Google is saying in your AI chat box
+            console.error("DEBUG:", data);
+            return `AI Error: ${data.error ? data.error.message : 'Check Console'}`;
         }
 
         return data.candidates[0].content.parts[0].text;
 
     } catch (e) {
-        console.error("Network Error:", e);
-        return "System: Connection lost. Please check your internet.";
+        console.error("NETWORK ERROR:", e);
+        return "System: Connection error. Please try a different network/VPN.";
     }
 }
 
-// Anonymous Critic Logic
-async function submitAnonymous() {
-    const input = document.getElementById('anon-input').value;
-    const feedback = document.getElementById('mod-feedback');
-    if(!input) return;
-
-    feedback.innerHTML = "<em>AI Moderation in progress...</em>";
-    const sys = "You are an automated university moderator. If this is a valid campus complaint, reply 'CLEAN'. If it contains abuse or nonsense, reply 'REJECTED'.";
-    
-    const result = await callGemini(sys, input);
-
-    if(result.toUpperCase().includes('CLEAN')) {
-        feedback.style.color = "#28a745";
-        feedback.innerText = "✅ Feedback submitted anonymously to the Registrar Office.";
-        document.getElementById('anon-input').value = "";
-    } else {
-        feedback.style.color = "#dc3545";
-        feedback.innerText = result;
-    }
-}
+// Keep your submitAnonymous function exactly as it was
