@@ -49,3 +49,89 @@ input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-rad
 /* Directory */
 .directory-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
 .status-msg { font-size: 11px; color: var(--text-muted); margin-top: 10px; }
+
+/* --- ELITE V2 HERO SECTION --- */
+.hero-elite {
+    position: relative;
+    height: 50vh;
+    background: #111111;
+    display: flex;
+    align-items: center;
+    padding-left: 5%;
+    overflow: hidden;
+    border-bottom: 5px solid #CC0000;
+    font-family: 'Arial', sans-serif;
+}
+
+.hero-content {
+    z-index: 3;
+    max-width: 50%;
+}
+
+.hero-title-white {
+    color: white;
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.hero-title-red {
+    color: #CC0000;
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.hero-subtitle {
+    color: #CC0000;
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-top: 5px;
+    letter-spacing: 2px;
+}
+
+.btn-elite {
+    background: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 12px 30px;
+    font-size: 1rem;
+    margin-top: 25px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-elite:hover {
+    background: #CC0000;
+    border-color: #CC0000;
+}
+
+/* The Diagonal Cut Image */
+.hero-image {
+    position: absolute;
+    top: 0; 
+    right: 0; 
+    width: 60%; 
+    height: 100%;
+    /* Placeholder student image - replace with a CU image if you have one */
+    background: url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1000') center/cover;
+    clip-path: polygon(25% 0, 100% 0, 100% 100%, 0% 100%);
+    filter: grayscale(100%);
+    z-index: 2;
+}
+
+/* The Red Accent Slash Behind the Image */
+.hero-red-slash {
+    position: absolute;
+    top: 0; 
+    right: 5%; 
+    width: 60%; 
+    height: 100%;
+    background: #CC0000;
+    clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+    z-index: 1;
+}
