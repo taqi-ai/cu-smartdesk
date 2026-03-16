@@ -1,9 +1,8 @@
-const API_KEY = 'AIzaSyDXLjpTOGymRAg-JWWtdP2V2AWsY7P70sI'; // This is a placeholder
+const API_KEY = 'AIzaSyDXLjpTOGymRAg-JWWtdP2V2AWsY7P70sI'; // Placeholder for GitHub Action
 
 async function callGemini(sys, msg) {
-    // Check if the key is still the placeholder
-    if (API_KEY.includes('YOUR_API_KEY')) {
-        return "System: API Key is not set correctly.";
+    if (API_KEY.includes('REPLACE_ME')) {
+        return "System: API Key is missing. Ensure GitHub Secrets are configured.";
     }
 
     try {
@@ -12,24 +11,42 @@ async function callGemini(sys, msg) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
-                    parts: [{ text: `${sys}\n\nUser Message: ${msg}` }]
+                    parts: [{ 
+                        text: `SYSTEM INSTRUCTIONS: ${sys}\n\nSTUDENT MESSAGE: ${msg}` 
+                    }]
                 }]
             })
         });
 
+        const data = await response.json();
+        
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Gemini API Error Detail:", errorData);
-            return `System Error: ${errorData.error.message || "Connection Failed"}`;
+            console.error("Gemini Error:", data);
+            return `AI Error: ${data.error.message}`;
         }
 
-        const data = await response.json();
         return data.candidates[0].content.parts[0].text;
-
     } catch (e) {
-        console.error("Fetch Error:", e);
-        return "System: Connection to Gemini AI failed. Check your internet or API Key.";
+        console.error("Connection Error:", e);
+        return "System: Connection to Gemini failed. Check your internet/API status.";
     }
 }
 
-// ... keep your submitAnonymous function as is
+async function submitAnonymous() {
+    const input = document.getElementById('anon-input').value;
+    const feedback = document.getElementById('mod-feedback');
+    if(!input) return;
+
+    feedback.innerHTML = "AI Moderating content...";
+    const sys = "Act as a university moderator. If the message is constructive campus feedback, reply ONLY with 'CLEAN'. If it's abusive, reply 'REJECTED: [Reason]'.";
+    const result = await callGemini(sys, input);
+
+    if(result.includes('CLEAN')) {
+        feedback.style.color = "green";
+        feedback.innerText = "✅ Feedback sent anonymously to PVC Office.";
+        document.getElementById('anon-input').value = "";
+    } else {
+        feedback.style.color = "red";
+        feedback.innerText = result;
+    }
+}
