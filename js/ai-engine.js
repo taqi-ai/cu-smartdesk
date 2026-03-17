@@ -1,33 +1,29 @@
 // =============================================
-// CU SmartDesk | AI Engine (Claude by Anthropic)
+// CU SmartDesk | AI Engine (Gemini 1.5 Flash)
 // =============================================
+
+const GEMINI_KEY = 'AIzaSyBunh7Un_XknsKsJROtQQoXFJc88Xac5O4';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
 
 async function callClaude(systemPrompt, userMessage) {
     try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
+        const response = await fetch(GEMINI_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-version': '2023-06-01'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 1000,
-                system: systemPrompt,
-                messages: [
-                    { role: 'user', content: userMessage }
-                ]
+                system_instruction: { parts: [{ text: systemPrompt }] },
+                contents: [{ parts: [{ text: userMessage }] }]
             })
         });
 
         if (!response.ok) {
             const err = await response.json();
-            console.error('Claude API Error:', err);
+            console.error('Gemini API Error:', err);
             return `⚠️ API Error: ${err.error?.message || 'Unknown error'}`;
         }
 
         const data = await response.json();
-        return data.content?.[0]?.text || '⚠️ No response from AI.';
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || '⚠️ No response from AI.';
 
     } catch (e) {
         console.error('Network error:', e);
