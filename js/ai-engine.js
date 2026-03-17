@@ -1,37 +1,115 @@
-const API_KEY = 'AIzaSyB3lguT62uK2C48bolAnt06Gg1qE2tTUis'; // Replace with real key
+// =============================================
+// CU SmartDesk | AI Engine (Gemini 1.5 Flash)
+// =============================================
 
-async function callGemini(sys, msg) {
-    if(API_KEY === 'YOUR_API_KEY_HERE') return "System: Please provide a valid Gemini API Key.";
-    
+const API_KEY = 'REPLACE_ME_AI_KEY'; // Injected securely via GitHub Actions
+
+async function callGemini(systemPrompt, userMessage) {
+    if (!API_KEY || API_KEY === 'REPLACE_ME_AI_KEY') {
+        return "⚠️ System: API Key not configured. Please set up your Gemini API key.";
+    }
+
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                system_instruction: { parts: [{ text: sys }] },
-                contents: [{ parts: [{ text: msg }] }]
-            })
-        });
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    system_instruction: { parts: [{ text: systemPrompt }] },
+                    contents: [{ parts: [{ text: userMessage }] }]
+                })
+            }
+        );
+
+        if (!response.ok) {
+            const err = await response.json();
+            console.error('Gemini API Error:', err);
+            return `⚠️ API Error: ${err.error?.message || 'Unknown error'}`;
+        }
+
         const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
-    } catch(e) { return "System: Connection to Gemini AI failed."; }
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ No response from AI.";
+
+    } catch (e) {
+        console.error('Network error:', e);
+        return "⚠️ Connection to Gemini AI failed. Check your internet connection.";
+    }
 }
 
+// -----------------------------------------------
+// Anonymous Feedback Moderation
+// -----------------------------------------------
 async function submitAnonymous() {
-    const input = document.getElementById('anon-input').value;
+    const input = document.getElementById('anon-input');
     const feedback = document.getElementById('mod-feedback');
-    if(!input) return;
+    const btn = document.getElementById('anon-btn');
 
-    feedback.innerHTML = "AI Moderation in progress...";
-    const sys = "Analyze if this university feedback is abusive or irrelevant. If clean, reply only with 'CLEAN'. If bad, reply 'REJECTED: [Reason]'.";
-    const result = await callGemini(sys, input);
-
-    if(result.includes('CLEAN')) {
-        feedback.style.color = "green";
-        feedback.innerText = "✅ Feedback submitted anonymously to Registrar Office.";
-        document.getElementById('anon-input').value = "";
-    } else {
-        feedback.style.color = "red";
-        feedback.innerText = result;
+    if (!input.value.trim()) {
+        feedback.className = 'mod-msg mod-error';
+        feedback.innerText = '⚠️ Please enter your feedback before submitting.';
+        return;
     }
+
+    btn.disabled = true;
+    feedback.className = 'mod-msg mod-loading';
+    feedback.innerText = '🔍 AI Moderation in progress...';
+
+    const sys = `You are a content moderator for a university student portal in India.
+Analyze if the student feedback is abusive, personally targeted, or completely irrelevant.
+- If the content is constructive criticism about university services, food, labs, teaching quality, or facilities: reply ONLY with the word CLEAN.
+- If the content contains personal attacks, slurs, threats, or is completely off-topic: reply with REJECTED: followed by a brief, helpful reason.
+Do not add any other text.`;
+
+    const result = await callGemini(sys, input.value.trim());
+
+    if (result.startsWith('CLEAN')) {
+        feedback.className = 'mod-msg mod-success';
+        feedback.innerText = '✅ Feedback submitted anonymously to the Registrar Office.';
+        input.value = '';
+    } else if (result.startsWith('REJECTED')) {
+        feedback.className = 'mod-msg mod-error';
+        feedback.innerText = result;
+    } else {
+        feedback.className = 'mod-msg mod-error';
+        feedback.innerText = result; // Shows API errors too
+    }
+
+    btn.disabled = false;
+}
+
+// -----------------------------------------------
+// Grievance Letter Generator
+// -----------------------------------------------
+async function generateGrievance() {
+    const desc = document.getElementById('grv-desc').value.trim();
+    const result = document.getElementById('grv-result');
+    const btn = document.getElementById('grv-btn');
+
+    if (!desc) {
+        result.className = 'letter-result letter-error';
+        result.innerText = '⚠️ Please describe your grievance before generating a letter.';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = '⏳ Generating Letter...';
+    result.className = 'letter-result letter-loading';
+    result.innerText = '✍️ AI is drafting your formal letter...';
+
+    const sys = `You are a formal letter drafting assistant for Indian university students.
+Draft a professional, firm, and legally-aware grievance letter based on the student's issue.
+- Address it to: The Office of the Registrar / PVC, Chandigarh University UP Campus
+- Reference the RTI Act 2005 and UGC grievance redressal guidelines where relevant
+- Keep a formal but assertive tone
+- Include: Subject line, formal salutation, body (3-4 paragraphs), closing
+- Do NOT include date, student name, or enrollment number (they will be added separately)
+- Output ONLY the letter content, no extra explanation`;
+
+    const letter = await callGemini(sys, `My grievance: ${desc}`);
+
+    result.className = 'letter-result letter-success';
+    result.innerText = letter;
+    btn.disabled = false;
+    btn.innerText = '📄 Generate Formal Letter';
 }

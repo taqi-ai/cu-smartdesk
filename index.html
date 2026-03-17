@@ -5,109 +5,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CU SmartDesk | Official Student Portal</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+    <!-- ================================================
+         HEADER
+    ================================================= -->
     <header class="official-header">
         <div class="utility-bar">
             <span>Toll Free: 1800 270 1411</span>
-            <span class="hack-tag">For Hackophobia | Powered by Gemini 1.5</span>
+            <span class="hack-tag">⚡ For Hackophobia | Powered by Gemini 1.5 Flash</span>
         </div>
         <nav class="main-nav">
             <div class="logo-area">
-                <img src="assets/cu-logo.png" alt="CU Logo" class="main-logo">
+                <!-- Logo with fallback if image missing -->
+                <div class="logo-fallback">CU</div>
                 <div class="logo-text">
                     <h1>CHANDIGARH UNIVERSITY</h1>
-                    <p>UP CAMPUS • SMARTDESK STUDENT PORTAL</p>
+                    <p>UP Campus &nbsp;•&nbsp; SmartDesk Student Portal</p>
                 </div>
             </div>
             <div class="user-meta">
-                <span id="pvc-status">● PVC/REGISTRAR MONITORING ACTIVE</span>
-                <div class="profile-chip">SH</div>
+                <span id="pvc-status">● PVC / REGISTRAR MONITORING ACTIVE</span>
+                <div class="profile-chip" title="Logged in as: Shadab Haider">SH</div>
             </div>
         </nav>
     </header>
 
+    <!-- ================================================
+         MAIN DASHBOARD
+    ================================================= -->
     <main class="dashboard">
+
+        <!-- Top Row: Attendance + Campus Pulse -->
         <section class="top-row">
+
+            <!-- Attendance Analytics Card -->
             <div class="card att-card">
                 <div class="card-header">
-                    <h3>Attendance Analytics</h3>
+                    <h3>📊 Attendance Analytics</h3>
                     <button id="sync-btn" class="sync-btn" onclick="simulateSync()">🔄 Sync CUIMS</button>
                 </div>
                 <div class="att-flex">
                     <div class="att-gauge">
-                        <span id="att-value">78.4%</span>
+                        <span id="att-value">78.3%</span>
                     </div>
                     <div class="att-stats">
-                        <p class="safe">Safe to Skip: <span id="safe-skip" class="mono">2 Classes</span></p>
-                        <p class="recover">To 85%: <span id="recover-val" class="mono">Attend 6 more</span></p>
+                        <p>Safe to Skip: <span id="safe-skip" class="mono">2 Classes</span></p>
+                        <p>To reach 85%: <span id="recover-val" class="mono">Attend 8 more</span></p>
                     </div>
                 </div>
-                <div id="sync-status" class="status-msg">Last synced: Just now</div>
+                <div class="att-progress-track">
+                    <div class="att-progress-bar" id="att-progress" style="width: 78.3%;"></div>
+                </div>
+                <div id="sync-status" class="status-msg">Last synced: On page load</div>
             </div>
 
+            <!-- Campus Pulse Card -->
             <div class="card pulse-card">
-                <h3>Campus Pulse (Official Escalation)</h3>
+                <h3>🔥 Campus Pulse</h3>
                 <p class="muted">Live issues transmitted to PVC/Registrar office</p>
                 <div id="pulse-list">
                     <div class="pulse-item">
-                        <strong>Mess Food Quality (Block D)</strong>
-                        <div class="pulse-meta">142 reports • <span class="tag-urgent">URGENT</span></div>
+                        <strong>Mess Food Quality — Block D</strong>
+                        <div class="pulse-meta">142 reports &nbsp;•&nbsp; <span class="tag-urgent">URGENT</span></div>
+                    </div>
+                    <div class="pulse-item">
+                        <strong>Lab Equipment Failure — CS Lab 3</strong>
+                        <div class="pulse-meta">87 reports &nbsp;•&nbsp; <span class="tag-urgent">HIGH</span></div>
+                    </div>
+                    <div class="pulse-item">
+                        <strong>Scholarship Attendance Glitch</strong>
+                        <div class="pulse-meta">63 reports &nbsp;•&nbsp; <span class="tag-urgent">ESCALATED</span></div>
                     </div>
                 </div>
             </div>
+
         </section>
 
+        <!-- Tab Navigation -->
         <nav class="tab-nav">
-            <button class="t-btn active" onclick="switchTab('ai')">🤖 AI Assistant</button>
-            <button class="t-btn" onclick="switchTab('anon')">🕵️ Anonymous Critic</button>
-            <button class="t-btn" onclick="switchTab('direct')">✉️ Directory</button>
-            <button class="t-btn" onclick="switchTab('grv')">📋 Grievance Hub</button>
+            <button class="t-btn active" onclick="switchTab('ai', this)">🤖 AI Assistant</button>
+            <button class="t-btn" onclick="switchTab('anon', this)">🕵️ Anonymous</button>
+            <button class="t-btn" onclick="switchTab('direct', this)">✉️ Directory</button>
+            <button class="t-btn" onclick="switchTab('grv', this)">📋 Grievance</button>
         </nav>
 
+        <!-- -----------------------------------------------
+             TAB 1: AI Chat
+        ----------------------------------------------- -->
         <section id="ai" class="tab-pane active">
-            <div class="card chat-container">
-                <div id="chat-box" class="chat-display"></div>
+            <div class="card">
+                <div id="chat-box" class="chat-display">
+                    <div class="chat-bubble ai-bubble">
+                        <strong>SmartDesk AI</strong>
+                        <p>Hello! I'm your AI assistant powered by Gemini 1.5 Flash. Ask me about attendance recovery, scholarship issues, RTI queries, or any university rule. I'm here to help! 🎓</p>
+                    </div>
+                </div>
                 <div class="chat-input-row">
-                    <input type="text" id="ai-input" placeholder="Ask about scholarship attendance, recovery plans, or rules...">
-                    <button class="btn-cu" onclick="sendAIQuery()">Ask Gemini</button>
+                    <input type="text" id="ai-input" placeholder="Ask about scholarship attendance, recovery plans, rules... (Press Enter to send)">
+                    <button class="btn-cu" id="ai-send-btn" onclick="sendAIQuery()">Ask AI</button>
                 </div>
             </div>
         </section>
 
+        <!-- -----------------------------------------------
+             TAB 2: Anonymous Feedback
+        ----------------------------------------------- -->
         <section id="anon" class="tab-pane">
             <div class="card">
-                <h3>Anonymous Feedback Portal</h3>
-                <p class="muted">AI-Moderated. Your identity is hidden. Focus on quality criticism.</p>
-                <textarea id="anon-input" placeholder="Describe the quality issue (e.g. Lab equipment, teaching style, mess hygiene)..."></textarea>
-                <button class="btn-cu" onclick="submitAnonymous()">Submit Anonymously</button>
+                <h3>🕵️ Anonymous Feedback Portal</h3>
+                <p class="muted">AI-Moderated. Your identity is 100% hidden. Focus on constructive quality criticism.</p>
+                <textarea id="anon-input" placeholder="Describe the quality issue — e.g. lab equipment, mess hygiene, teaching quality, infrastructure problems..."></textarea>
+                <button class="btn-cu" id="anon-btn" onclick="submitAnonymous()">Submit Anonymously</button>
                 <div id="mod-feedback" class="mod-msg"></div>
             </div>
         </section>
 
+        <!-- -----------------------------------------------
+             TAB 3: Official Directory
+        ----------------------------------------------- -->
         <section id="direct" class="tab-pane">
             <div class="card">
-                <h3>Official Directory & Messaging</h3>
-                <div class="directory-list" id="directory-list">
-                    </div>
+                <h3>✉️ Official Directory & Messaging</h3>
+                <p class="muted">Direct communication with department heads. Non-responses escalate automatically after 48 hours.</p>
+                <div id="directory-list"></div>
             </div>
         </section>
 
+        <!-- -----------------------------------------------
+             TAB 4: Grievance Hub
+        ----------------------------------------------- -->
         <section id="grv" class="tab-pane">
             <div class="card">
-                <h3>Grievance Engine</h3>
-                <p class="muted">Generate AI-powered formal letters for serious issues.</p>
-                <textarea id="grv-desc" placeholder="Describe your grievance in detail..."></textarea>
-                <button class="btn-cu" onclick="generateGrievance()">Generate Formal Letter</button>
-                <button class="sync-btn" style="margin-left:10px;" onclick="printGrievance()">🖨️ Print/Save as PDF</button>
+                <h3>📋 Grievance Engine</h3>
+                <p class="muted">Generate AI-powered, legally-aware formal letters referencing RTI Act 2005 & UGC guidelines.</p>
+
+                <!-- Student Identity (for print only) -->
+                <div class="grv-meta-row">
+                    <input type="text" id="student-name" placeholder="Your Full Name (for printed letter)">
+                    <input type="text" id="enrollment" placeholder="Enrollment Number (for printed letter)">
+                </div>
+
+                <textarea id="grv-desc" placeholder="Describe your grievance in detail — e.g. attendance wrongly deducted due to scholarship glitch, email ignored for 3 weeks by HOD..."></textarea>
+
+                <div class="grv-actions">
+                    <button class="btn-cu" id="grv-btn" onclick="generateGrievance()">📄 Generate Formal Letter</button>
+                    <button class="btn-outline" onclick="printGrievance()">🖨️ Print / Save PDF</button>
+                </div>
+
                 <div id="grv-result" class="letter-result"></div>
             </div>
         </section>
+
     </main>
 
+    <!-- Scripts — correct paths -->
     <script src="js/attendance.js"></script>
     <script src="js/ai-engine.js"></script>
     <script src="js/app.js"></script>
+
 </body>
 </html>
