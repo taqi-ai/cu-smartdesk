@@ -1,39 +1,37 @@
 // =============================================
-// CU SmartDesk | AI Engine (Gemini 1.5 Flash)
+// CU SmartDesk | AI Engine (Claude by Anthropic)
 // =============================================
 
-const API_KEY = 'REPLACE_ME_AI_KEY'; // Injected securely via GitHub Actions
-
-async function callGemini(systemPrompt, userMessage) {
-    if (!API_KEY || API_KEY === 'REPLACE_ME_AI_KEY') {
-        return "⚠️ System: API Key not configured. Please set up your Gemini API key.";
-    }
-
+async function callClaude(systemPrompt, userMessage) {
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    system_instruction: { parts: [{ text: systemPrompt }] },
-                    contents: [{ parts: [{ text: userMessage }] }]
-                })
-            }
-        );
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 1000,
+                system: systemPrompt,
+                messages: [
+                    { role: 'user', content: userMessage }
+                ]
+            })
+        });
 
         if (!response.ok) {
             const err = await response.json();
-            console.error('Gemini API Error:', err);
+            console.error('Claude API Error:', err);
             return `⚠️ API Error: ${err.error?.message || 'Unknown error'}`;
         }
 
         const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ No response from AI.";
+        return data.content?.[0]?.text || '⚠️ No response from AI.';
 
     } catch (e) {
         console.error('Network error:', e);
-        return "⚠️ Connection to Gemini AI failed. Check your internet connection.";
+        return '⚠️ Connection to AI failed. Check your internet connection.';
     }
 }
 
@@ -61,7 +59,7 @@ Analyze if the student feedback is abusive, personally targeted, or completely i
 - If the content contains personal attacks, slurs, threats, or is completely off-topic: reply with REJECTED: followed by a brief, helpful reason.
 Do not add any other text.`;
 
-    const result = await callGemini(sys, input.value.trim());
+    const result = await callClaude(sys, input.value.trim());
 
     if (result.startsWith('CLEAN')) {
         feedback.className = 'mod-msg mod-success';
@@ -106,7 +104,7 @@ Draft a professional, firm, and legally-aware grievance letter based on the stud
 - Do NOT include date, student name, or enrollment number (they will be added separately)
 - Output ONLY the letter content, no extra explanation`;
 
-    const letter = await callGemini(sys, `My grievance: ${desc}`);
+    const letter = await callClaude(sys, `My grievance: ${desc}`);
 
     result.className = 'letter-result letter-success';
     result.innerText = letter;

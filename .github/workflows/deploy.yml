@@ -1,20 +1,18 @@
-name: Secure Deploy
+name: Deploy to GitHub Pages
+
 on:
   push:
     branches: [ main ]
+
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Inject API Key
-        run: |
-          sed -i "s/REPLACE_ME_AI_KEY/${{ secrets.GEMINI_API_KEY }}/g" js/ai-engine.js
-
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-            folder: . # The folder the action should deploy.
-            branch: gh-pages # The branch the action should deploy to.
+          folder: .
+          branch: gh-pages

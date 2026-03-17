@@ -150,7 +150,7 @@ async function sendAIQuery() {
 You help with: attendance calculations, scholarship issues, grievance procedures, university rules, and RTI queries.
 Be concise, empathetic, and actionable. Always suggest next steps. Reference UGC guidelines and RTI Act 2005 when relevant.`;
 
-    const response = await callGemini(sys, userMsg);
+    const response = await callClaude(sys, userMsg);
 
     document.getElementById('ai-typing').outerHTML = `
         <div class="chat-bubble ai-bubble">
